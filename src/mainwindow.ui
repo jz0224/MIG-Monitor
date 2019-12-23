@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1206</width>
+    <height>826</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1175</width>
+    <height>755</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout_4">
+    <item row="0" column="0" rowspan="2">
+     <widget class="QGroupBox" name="groupBox_3">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>450</width>
+        <height>500</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>450</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QTabWidget" name="tabWidget">
+         <property name="minimumSize">
+          <size>
+           <width>440</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">font: 12pt &quot;Times New Roman&quot;;</string>
+         </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="parameter_tab">
+          <attribute name="title">
+           <string>Camera Parameters</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="QTreeWidget" name="parameter_tree">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="indentation">
+              <number>5</number>
+             </property>
+             <attribute name="headerStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <column>
+              <property name="text">
+               <string>Parameter</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Value</string>
+              </property>
+             </column>
+             <item>
+              <property name="text">
+               <string>Width</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Height</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Frame rate</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Exposure time</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Trigger mode</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Polarity</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>ImageProcess</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>ROI.x</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>ROI.y</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>ROI.w</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>ROI.h</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Threshold</string>
+               </property>
+              </item>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="control_tab">
+          <attribute name="title">
+           <string>Weld Control</string>
+          </attribute>
+          <widget class="QtCharts::QChartView" name="graphicsView">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>80</y>
+             <width>411</width>
+             <height>221</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255);</string>
+           </property>
+          </widget>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>580</y>
+             <width>411</width>
+             <height>121</height>
+            </rect>
+           </property>
+           <property name="title">
+            <string>Suggest Parameters</string>
+           </property>
+           <widget class="QProgressBar" name="CurrentBar">
+            <property name="geometry">
+             <rect>
+              <x>30</x>
+              <y>80</y>
+              <width>118</width>
+              <height>23</height>
+             </rect>
+            </property>
+            <property name="minimum">
+             <number>100</number>
+            </property>
+            <property name="maximum">
+             <number>200</number>
+            </property>
+            <property name="value">
+             <number>150</number>
+            </property>
+            <property name="format">
+             <string>%vA</string>
+            </property>
+           </widget>
+           <widget class="QProgressBar" name="VoltageBar">
+            <property name="geometry">
+             <rect>
+              <x>240</x>
+              <y>80</y>
+              <width>118</width>
+              <height>23</height>
+             </rect>
+            </property>
+            <property name="maximum">
+             <number>25</number>
+            </property>
+            <property name="value">
+             <number>18</number>
+            </property>
+            <property name="format">
+             <string>%vV</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label">
+            <property name="geometry">
+             <rect>
+              <x>50</x>
+              <y>40</y>
+              <width>72</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Current</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_6">
+            <property name="geometry">
+             <rect>
+              <x>260</x>
+              <y>40</y>
+              <width>72</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Voltage</string>
+            </property>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="layoutWidget">
+           <property name="geometry">
+            <rect>
+             <x>-10</x>
+             <y>30</y>
+             <width>421</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="label_4">
+              <property name="styleSheet">
+               <string notr="true">font: 12pt &quot;Times New Roman&quot;;</string>
+              </property>
+              <property name="text">
+               <string>Current</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLCDNumber" name="AI_Current">
+              <property name="smallDecimalPoint">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="styleSheet">
+               <string notr="true">font: 12pt &quot;Times New Roman&quot;;</string>
+              </property>
+              <property name="text">
+               <string>Voltage</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLCDNumber" name="AI_Voltage">
+              <property name="smallDecimalPoint">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QtCharts::QChartView" name="graphicsView_3">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>330</y>
+             <width>411</width>
+             <height>221</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255);</string>
+           </property>
+          </widget>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font: 12pt &quot;Times New Roman&quot;;</string>
+      </property>
+      <property name="title">
+       <string>Display Window</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="display_wnd">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>640</width>
+           <height>480</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QGroupBox" name="groupBox_4">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>727</width>
+        <height>153</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>153</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font: 12pt &quot;Times New Roman&quot;;</string>
+      </property>
+      <property name="title">
+       <string>Monitor Window</string>
+      </property>
+      <widget class="QLabel" name="roi_wnd">
+       <property name="geometry">
+        <rect>
+         <x>420</x>
+         <y>20</y>
+         <width>181</width>
+         <height>131</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>20</y>
+         <width>61</width>
+         <height>91</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="../resources/rcc.qrc">:/pics/width.png</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QProgressBar" name="widthBar">
+       <property name="geometry">
+        <rect>
+         <x>40</x>
+         <y>120</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="maximum">
+        <number>30</number>
+       </property>
+       <property name="value">
+        <number>0</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="format">
+        <string>%vmm</string>
+       </property>
+      </widget>
+      <widget class="QProgressBar" name="lengthBar">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>120</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="maximum">
+        <number>30</number>
+       </property>
+       <property name="value">
+        <number>0</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="format">
+        <string>%vmm</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_5">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>20</y>
+         <width>61</width>
+         <height>91</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="../resources/rcc.qrc">:/pics/length.png</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="processButton">
+       <property name="geometry">
+        <rect>
+         <x>310</x>
+         <y>50</y>
+         <width>75</width>
+         <height>71</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Times New Roman</family>
+         <pointsize>12</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Image
+Process</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>60</width>
+     <height>35</height>
+    </size>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionBoard"/>
+   <addaction name="actionConnect"/>
+   <addaction name="actionDisconnect"/>
+   <addaction name="separator"/>
+   <addaction name="actionUploadParameters"/>
+   <addaction name="actionStart"/>
+   <addaction name="actionStop"/>
+   <addaction name="separator"/>
+   <addaction name="actionSetSavePath"/>
+   <addaction name="actionRecord"/>
+   <addaction name="separator"/>
+  </widget>
+  <action name="actionConnect">
+   <property name="icon">
+    <iconset resource="../resources/rcc.qrc">
+     <normaloff>:/icons/connect.ico</normaloff>:/icons/connect.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Connect</string>
+   </property>
+  </action>
+  <action name="actionDisconnect">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/rcc.qrc">
+     <normaloff>:/icons/disconnect.ico</normaloff>:/icons/disconnect.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Disconnect</string>
+   </property>
+  </action>
+  <action name="actionStart">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/rcc.qrc">
+     <normaloff>:/icons/play.ico</normaloff>:/icons/play.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Start</string>
+   </property>
+   <property name="toolTip">
+    <string>Start</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/rcc.qrc">
+     <normaloff>:/icons/stop.ico</normaloff>:/icons/stop.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Stop</string>
+   </property>
+  </action>
+  <action name="actionRecord">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/rcc.qrc">
+     <normaloff>:/icons/record.ico</normaloff>:/icons/record.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Record</string>
+   </property>
+  </action>
+  <action name="actionUploadParameters">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/rcc.qrc">
+     <normaloff>:/icons/upload_para.ico</normaloff>:/icons/upload_para.ico</iconset>
+   </property>
+   <property name="text">
+    <string>UploadParameters</string>
+   </property>
+  </action>
+  <action name="actionSetSavePath">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/rcc.qrc">
+     <normaloff>:/icons/save_path.ico</normaloff>:/icons/save_path.ico</iconset>
+   </property>
+   <property name="text">
+    <string>SetSavePath</string>
+   </property>
+  </action>
+  <action name="actionCalibrate">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icon/resources/calibration.ico</normaloff>:/icon/resources/calibration.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Calibrate</string>
+   </property>
+  </action>
+  <action name="actionBoard">
+   <property name="icon">
+    <iconset resource="../resources/rcc.qrc">
+     <normaloff>:/icons/circuit-board.png</normaloff>:/icons/circuit-board.png</iconset>
+   </property>
+   <property name="text">
+    <string>Board</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QtCharts::QChartView</class>
+   <extends>QGraphicsView</extends>
+   <header>qchartview.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../resources/rcc.qrc"/>
+ </resources>
+ <connections/>
+</ui>

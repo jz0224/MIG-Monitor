@@ -1,0 +1,15 @@
+<RCC>
+  <qresource prefix="/icon">
+    <file>length.png</file>
+    <file>width.png</file>
+    <file>resources/archive.ico</file>
+    <file>resources/calibration.ico</file>
+    <file>resources/connect.ico</file>
+    <file>resources/disconnect.ico</file>
+    <file>resources/play.ico</file>
+    <file>resources/record.ico</file>
+    <file>resources/save_path.ico</file>
+    <file>resources/stop.ico</file>
+    <file>resources/upload_para.ico</file>
+  </qresource>
+</RCC>

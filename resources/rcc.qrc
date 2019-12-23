@@ -1,0 +1,18 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>circuit-board.png</file>
+    <file>calibration.ico</file>
+    <file>connect.ico</file>
+    <file>disconnect.ico</file>
+    <file>play.ico</file>
+    <file>record.ico</file>
+    <file>save_path.ico</file>
+    <file>stop.ico</file>
+    <file>upload_para.ico</file>
+  </qresource>
+  <qresource prefix="pics">
+    <file>default.bmp</file>
+    <file>length.png</file>
+    <file>width.png</file>
+  </qresource>
+</RCC>
