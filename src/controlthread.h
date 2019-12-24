@@ -6,6 +6,7 @@
 #include <QTextStream>
 #include <QTime>
 #include <QVector>
+#include <memory>
 
 using namespace Automation::BDaq;
 
@@ -57,10 +58,10 @@ public:
 	bool IsCollecting();
 	void StartSaving();
 	void StopSaving();
-
-	double poolWidth;
+	QString GetDeviceName();
 
 private:
+	QString mDeviceName;
 	BufferedAiCtrl* mpBufferedAiCtrl = nullptr;
 	double *mpScaledData = nullptr;
 
@@ -83,5 +84,7 @@ signals:
 	void SendAnalogData(QVector<double>);
 	void SendFinishSignal();
 };
+
+typedef std::shared_ptr<ControlThread> ControlThreadPtr;
 
 #endif

@@ -35,7 +35,6 @@ public:
 	CameraThread(ImageChannelPtr pImageChannel);
 	~CameraThread();
 
-	std::thread CreateCaptureThread();
 	void StartCapture();
 	void StopCapture();
 	void CaptureImage();
@@ -74,5 +73,7 @@ signals:
 	
 	void connectLost();
 };
+
+typedef std::shared_ptr<CameraThread> CameraThreadPtr;
 
 #endif //CAPTURETHREAD_H

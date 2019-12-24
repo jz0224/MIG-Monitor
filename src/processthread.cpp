@@ -54,6 +54,8 @@ void ProcessThread::SetProcessParam(ImageProcessParameters& ipParameters)
 void ProcessThread::StartDisplay()
 {
 	mIsPlaying = true;
+	std::thread displayThread = std::thread(&ProcessThread::DisplayImage, this);
+	displayThread.detach();
 }
 
 void ProcessThread::StopDisplay()
@@ -64,6 +66,8 @@ void ProcessThread::StopDisplay()
 void ProcessThread::StartRecord()
 {
 	mIsRecording = true;
+	std::thread processThread =  std::thread(&ProcessThread::SaveImage, this);
+	processThread.detach();
 }
 
 void ProcessThread::StopRecord()
@@ -74,6 +78,8 @@ void ProcessThread::StopRecord()
 void ProcessThread::StartProcess()
 {
 	mIsProcessing = true;
+	std::thread processThread = std::thread(&ProcessThread::ProcessImage, this);
+	processThread.detach();
 }
 
 void ProcessThread::StopProcess()
@@ -140,19 +146,4 @@ int ProcessThread::IPThreshold(QImage& origin)
 	emit sendLength(length);
 
 	return 0;
-}
-
-std::thread ProcessThread::CreateDisplayThread()
-{
-	return std::thread(&ProcessThread::DisplayImage, this);
-}
-
-std::thread ProcessThread::CreateSaveThread()
-{
-	return std::thread(&ProcessThread::SaveImage, this);
-}
-
-std::thread ProcessThread::CreateProcessThread()
-{
-	return std::thread(&ProcessThread::ProcessImage, this);
 }

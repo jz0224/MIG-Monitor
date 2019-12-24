@@ -29,10 +29,6 @@ public:
 	ProcessThread(ImageChannelPtr imagechannel);
     ~ProcessThread();
 
-	std::thread CreateDisplayThread();
-	std::thread CreateSaveThread();
-	std::thread CreateProcessThread();
-
 	void DisplayImage();
 	void SaveImage();
 	void ProcessImage();
@@ -77,4 +73,6 @@ signals:
 private slots:
 
 };
+
+typedef std::shared_ptr<ProcessThread> ProcessThreadPtr;
 #endif // PROCESSTHREAD_H

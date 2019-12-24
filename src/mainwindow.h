@@ -54,9 +54,9 @@ private:
 	QTreeWidgetItem *temItem = nullptr;
 	int temColumn;
 
-	CameraThread* mpCameraThread;
-    ProcessThread* mpProcessThread;
-	ControlThread* mpControlThread;
+	CameraThread* mpCameraThread = nullptr;
+    ProcessThread* mpProcessThread = nullptr;
+	ControlThread* mpControlThread = nullptr;
 	CameraParameters cameraParams;
 
 	std::string g_SaveFolder;

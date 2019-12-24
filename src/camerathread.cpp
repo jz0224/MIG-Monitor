@@ -95,16 +95,13 @@ void CameraThread::Disconnect()
 void CameraThread::StartCapture()
 {
 	mIsCapturing = true;
+	std::thread captureThread = std::thread(&CameraThread::CaptureImage, this);
+	captureThread.detach();
 }
 
 void CameraThread::StopCapture()
 {
 	mIsCapturing = false;
-}
-
-std::thread CameraThread::CreateCaptureThread()
-{
-	return std::thread(&CameraThread::CaptureImage, this);
 }
 
 void CameraThread::CaptureImage()
@@ -113,7 +110,7 @@ void CameraThread::CaptureImage()
 	mpPipeline->Start();
 	mpDevice->StreamEnable();
 	mpStartCommand->Execute();
-
+	
 	while (mIsCapturing)
 	{
 		//TODO:后台线程检测

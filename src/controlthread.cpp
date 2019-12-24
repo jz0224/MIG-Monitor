@@ -4,6 +4,7 @@
 #include <QVector>
 #include <QTimer>
 #include <vector>
+#include <iostream>
 
 const int sectionCount = 4;
 const int channelCount = 2;
@@ -15,6 +16,7 @@ const int displayRate = 20;
 ControlThread::ControlThread()
 {
     mIsCollecting = false;
+	mIsSaving = false;
 }
 
 ControlThread::~ControlThread()
@@ -54,10 +56,16 @@ void ControlThread::DataHandler(void *sender, BfdAiEventArgs *args)
         for (int j = 0; j < channelCount; ++j) {
             mAnalogData[j] = AI[j] / dataPerRound*2;
         }
-        mAnalogData[channelCount] = QString::number(mTime.elapsed() / 1000.0, 10, 3).toDouble();
+		double t = QString::number(mTime.elapsed() / 1000.0, 10, 3).toDouble();
+		mAnalogData[channelCount] = t;
         emit SendAnalogData(mAnalogData);
         total += inter;
     }
+}
+
+QString ControlThread::GetDeviceName()
+{
+	return mDeviceName;
 }
 
 int ControlThread::Initialize()
@@ -67,11 +75,11 @@ int ControlThread::Initialize()
     cacheOverflowHandler.owner = this;
     stoppedHander.owner = this;
 
-    QString deviceName = { "USB-4711A,BID#0" };
-    std::wstring wDeviceName = deviceName.toStdWString();
+    //QString deviceName = { "USB-4711A,BID#0" };
+	mDeviceName = { "DemoDevice,BID#0" };
+    std::wstring wDeviceName = mDeviceName.toStdWString();
     DeviceInformation deviceInfo(wDeviceName.c_str());
 
-    //�����ɼ������ַ���
     //#define deviceDescription L"DemoDevice,BID#0"
     //DeviceInformation selected(deviceDescription);
 

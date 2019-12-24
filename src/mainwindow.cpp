@@ -16,16 +16,27 @@ SaveSetDialog::SaveSetDialog(QWidget *parent) :
 	QDialog(parent), ui(new Ui::SaveSetDialog)
 {
 	ui->setupUi(this);
+	QSettings config(settingFilePath, QSettings::IniFormat);
+	config.beginGroup("Save_Path");
+	mSavePath = config.value(QString("Save Path"), "D:/").toString();
+	config.endGroup();
+	ui->savepath_edit->setText(mSavePath);
 }
 
 SaveSetDialog::~SaveSetDialog()
 {
 	delete ui;
+
+	QSettings config(settingFilePath, QSettings::IniFormat);
+
+	config.beginGroup("Save_Path");
+	config.setValue(QString("Save Path"), mSavePath);
+	config.endGroup();
 }
 
 void SaveSetDialog::on_BrowserBtn_clicked()
 {
-	mSavePath = QFileDialog::getExistingDirectory(this, tr("Save Path"), "D://");
+	mSavePath = QFileDialog::getExistingDirectory(this, tr("Save Path"), "D:/");
 
 	if (!mSavePath.isEmpty()) {
 		ui->savepath_edit->setText(mSavePath);
@@ -60,14 +71,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->parameter_tree->setItemWidget(ui->parameter_tree->topLevelItem(5), 1, polarity_box);
 
 	ReadSettings();
-	
 
     connect(ui->parameter_tree,SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(openEditor(QTreeWidgetItem*, int)));
     connect(ui->parameter_tree,SIGNAL(itemSelectionChanged()), this, SLOT(closeEditor()));
     ui->parameter_tree->setStyleSheet("QTreeWidget::item{height:30px}");
 
 	ui->actionRecord->setCheckable(true);
-	mpControlThread = new ControlThread;
 
 	qRegisterMetaType<QVector<double>>("QVector<double>");
 
@@ -138,9 +147,6 @@ MainWindow::~MainWindow()
 {
 	WriteSettings();
     delete ui;
-	delete mpProcessThread;
-	delete mpCameraThread;
-	delete mpControlThread;
 }
 
 void MainWindow::openEditor(QTreeWidgetItem *item, int column)
@@ -173,11 +179,6 @@ void MainWindow::displayROI(QImage display_roi)
 
 void MainWindow::on_actionConnect_triggered()
 {
-	/*if (mpCameraThread != nullptr)
-	{
-		delete mpCameraThread;
-		mpCameraThread = nullptr;
-	}*/
 	mpCameraThread = new CameraThread(mpImageChannel);
 
 
@@ -211,6 +212,7 @@ void MainWindow::on_actionSetSavePath_triggered()
     connect(save_set_dialog, SIGNAL(sendSaveSet(QString, size_t)), this, SLOT(receiveSaveSet(QString, size_t)));
 	save_set_dialog->setWindowTitle("Save Path Set");
 	save_set_dialog->exec();
+	delete save_set_dialog;
 }
 
 void MainWindow::on_actionUploadParameters_triggered()
@@ -243,42 +245,29 @@ void MainWindow::on_actionUploadParameters_triggered()
 	mpCameraThread->SetCameraParameter(cameraParams);
 	std::cout << "parameter set" << std::endl;
 	mpCameraThread->StartCapture();
-	std::thread captureThread = mpCameraThread->CreateCaptureThread();
-	captureThread.detach();
 
 	mpProcessThread = new ProcessThread(mpImageChannel);
 	connect(mpProcessThread, SIGNAL(sendImg(QImage)), this, SLOT(updateFrame(QImage)));
 	mpProcessThread->StartDisplay();
-	std::thread displayThread = mpProcessThread->CreateDisplayThread();
-	displayThread.detach();
 
+	ui->actionSetSavePath->setEnabled(true);
 	ui->actionStart->setEnabled(true);
 }
 
 void MainWindow::on_actionStart_triggered()
-{
-    //if (mpProcessThread != nullptr)
-    //{
-    //    delete mpProcessThread;
-    //    mpProcessThread = nullptr;
-    //}
-    
-    
+{    
 	//connect(mpProcessThread, SIGNAL(connectLost()), this, SLOT(ConnectLostHandler()));
 
 	//判断相机是否在采像
 	if (!mpCameraThread->IsCapturing())
 	{
 		mpCameraThread->StartCapture();
-		std::thread captureThread = mpCameraThread->CreateCaptureThread();
-		captureThread.detach();
-
 		mpProcessThread->StartDisplay();
-		std::thread displayThread = mpProcessThread->CreateDisplayThread();
-		displayThread.detach();
 	}
 
 	//控制线程开始
+	if (mpControlThread != nullptr && !mpControlThread->IsCollecting())
+		mpControlThread->StartCollect();
 
 	ui->actionStart->setEnabled(false);
 	ui->actionStop->setEnabled(true);
@@ -293,17 +282,18 @@ void MainWindow::on_actionStop_triggered()
 	
 	mpProcessThread->StopAllTasks();
 	mpCameraThread->StopCapture();
-	mpControlThread->StopCollect();
+	if (mpControlThread != nullptr && mpControlThread->IsCollecting())
+		mpControlThread->StopCollect();
 
 	ui->actionStart->setEnabled(true);
 	ui->actionStop->setEnabled(false);
-    ui->actionSetSavePath->setEnabled(false);
+    //ui->actionSetSavePath->setEnabled(false);
     ui->actionRecord->setEnabled(false);
     ui->actionUploadParameters->setEnabled(true);
 	ui->actionDisconnect->setEnabled(true);
 }
 
-void MainWindow::receiveSaveSet(QString saveDir, size_t savefreq)
+void MainWindow::receiveSaveSet(QString saveDir, size_t saveFreq)
 {
 	if (saveDir.isEmpty()) return;
 
@@ -311,7 +301,7 @@ void MainWindow::receiveSaveSet(QString saveDir, size_t savefreq)
 	tmp_dir = std::regex_replace(tmp_dir, std::regex("/"), std::string("\\"));
 	g_SaveFolder = tmp_dir;
 	
-	mpProcessThread->SetSaveFreq(savefreq);
+	mpProcessThread->SetSaveFreq(saveFreq);
 
 	ui->actionRecord->setEnabled(true);
 }
@@ -328,8 +318,6 @@ void MainWindow::on_actionRecord_toggled(bool pressed)
 
 		mpProcessThread->SetSavePath(savePath);
 		mpProcessThread->StartRecord();
-		std::thread saveThread = mpProcessThread->CreateSaveThread();
-		saveThread.detach();
 
 		if (mpControlThread != nullptr && mpControlThread->IsCollecting())
 		{
@@ -337,7 +325,7 @@ void MainWindow::on_actionRecord_toggled(bool pressed)
 			v_series->clear();
 			mpControlThread->SetSavePath(savePath + ".csv");
 			
-			mpControlThread->StartCollect();
+			mpControlThread->StartSaving();
 		}		
     }
 	else
@@ -369,8 +357,6 @@ void MainWindow::on_processButton_toggled(bool pressed)
 		mpProcessThread->SetProcessParam(ipParameters);
 
 		mpProcessThread->StartProcess();
-		std::thread processThread = mpProcessThread->CreateProcessThread();
-		processThread.detach();
 	}
 	else
 	{
@@ -389,8 +375,12 @@ void MainWindow::on_actionBoard_triggered()
 	int rtn = mpControlThread->Initialize();
 	if (rtn != 0)
 	{
-		std::cout << "Cannot connect to data acquisition board!" << std::endl;
+		QMessageBox::warning(this, tr("Warning"), tr("Cannot connect to data acquisition board!"), QMessageBox::Ok);
 		return;
+	}
+	else
+	{
+		QMessageBox::information(this, tr("Information"), mpControlThread->GetDeviceName()+tr(" is connected!"), QMessageBox::Ok);
 	}
 	connect(mpControlThread, SIGNAL(SendAnalogData(QVector<double>)), this, SLOT(ReceiveAnalogData(QVector<double>)));
 	connect(mpControlThread, SIGNAL(SendFinishSignal()), this, SLOT(Slotfinish()));
@@ -457,19 +447,21 @@ void MainWindow::ConnectLostHandler()
 
 void MainWindow::ReadSettings()
 {
-	QSettings *config = new QSettings(settingFilePath, QSettings::IniFormat);
+	QSettings config(settingFilePath, QSettings::IniFormat);
 
-	QString width = config->value(QString("Width"), 1280).toString();
-	QString height = config->value(QString("Height"), 1024).toString();
-	QString fps = config->value(QString("Frame rate"), 20).toString();
-	QString expose = config->value(QString("Exposure time"), 2000).toString();
-	QString trigger = config->value(QString("Trigger mode"), "Intern").toString();
-	QString polarity = config->value(QString("Polarity"), "Positive edge").toString();
-	QString roi_x = config->value(QString("ROI_x"), 0).toString();
-	QString roi_y = config->value(QString("ROI_y"), 0).toString();
-	QString roi_w = config->value(QString("ROI_w"), width.toInt()).toString();
-	QString roi_h = config->value(QString("ROI_h"), height.toInt()).toString();
-	QString threshold = config->value(QString("Threshold"), 30).toString();
+	config.beginGroup("Camera");
+	QString width = config.value(QString("Width"), 1280).toString();
+	QString height = config.value(QString("Height"), 1024).toString();
+	QString fps = config.value(QString("Frame rate"), 20).toString();
+	QString expose = config.value(QString("Exposure time"), 2000).toString();
+	QString trigger = config.value(QString("Trigger mode"), "Intern").toString();
+	QString polarity = config.value(QString("Polarity"), "Positive edge").toString();
+	QString roi_x = config.value(QString("ROI_x"), 0).toString();
+	QString roi_y = config.value(QString("ROI_y"), 0).toString();
+	QString roi_w = config.value(QString("ROI_w"), width.toInt()).toString();
+	QString roi_h = config.value(QString("ROI_h"), height.toInt()).toString();
+	QString threshold = config.value(QString("Threshold"), 30).toString();
+	config.endGroup();
 
 	ui->parameter_tree->topLevelItem(0)->setText(1, width);
 	ui->parameter_tree->topLevelItem(1)->setText(1, height);
@@ -482,25 +474,23 @@ void MainWindow::ReadSettings()
 	ui->parameter_tree->topLevelItem(6)->child(2)->setText(1, roi_w);
 	ui->parameter_tree->topLevelItem(6)->child(3)->setText(1, roi_h);
 	ui->parameter_tree->topLevelItem(6)->child(4)->setText(1, threshold);
-	
-	delete config;
-}
+	}
 
 void MainWindow::WriteSettings()
 {
-	QSettings *config = new QSettings(settingFilePath, QSettings::IniFormat);
+	QSettings config(settingFilePath, QSettings::IniFormat);
 
-	config->setValue(QString("Width"), ui->parameter_tree->topLevelItem(0)->text(1));
-	config->setValue(QString("Height"), ui->parameter_tree->topLevelItem(1)->text(1));
-	config->setValue(QString("Frame rate"), ui->parameter_tree->topLevelItem(2)->text(1));
-	config->setValue(QString("Exposure time"), ui->parameter_tree->topLevelItem(3)->text(1));
-	config->setValue(QString("Trigger mode"), synchro_box->currentText());
-	config->setValue(QString("Polarity"), polarity_box->currentText());
-	config->setValue(QString("ROI_x"), ui->parameter_tree->topLevelItem(6)->child(0)->text(1));
-	config->setValue(QString("ROI_y"), ui->parameter_tree->topLevelItem(6)->child(1)->text(1));
-	config->setValue(QString("ROI_w"), ui->parameter_tree->topLevelItem(6)->child(2)->text(1));
-	config->setValue(QString("ROI_h"), ui->parameter_tree->topLevelItem(6)->child(3)->text(1));
-	config->setValue(QString("Threshold"), ui->parameter_tree->topLevelItem(6)->child(4)->text(1));
-
-	delete config;
+	config.beginGroup("Camera");
+	config.setValue(QString("Width"), ui->parameter_tree->topLevelItem(0)->text(1));
+	config.setValue(QString("Height"), ui->parameter_tree->topLevelItem(1)->text(1));
+	config.setValue(QString("Frame rate"), ui->parameter_tree->topLevelItem(2)->text(1));
+	config.setValue(QString("Exposure time"), ui->parameter_tree->topLevelItem(3)->text(1));
+	config.setValue(QString("Trigger mode"), synchro_box->currentText());
+	config.setValue(QString("Polarity"), polarity_box->currentText());
+	config.setValue(QString("ROI_x"), ui->parameter_tree->topLevelItem(6)->child(0)->text(1));
+	config.setValue(QString("ROI_y"), ui->parameter_tree->topLevelItem(6)->child(1)->text(1));
+	config.setValue(QString("ROI_w"), ui->parameter_tree->topLevelItem(6)->child(2)->text(1));
+	config.setValue(QString("ROI_h"), ui->parameter_tree->topLevelItem(6)->child(3)->text(1));
+	config.setValue(QString("Threshold"), ui->parameter_tree->topLevelItem(6)->child(4)->text(1));
+	config.endGroup();
 }
