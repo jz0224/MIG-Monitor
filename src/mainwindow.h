@@ -28,7 +28,6 @@ using namespace QtCharts;
 namespace Ui {
 	class MainWindow;
 	class SaveSetDialog;
-	class ConfigureDialog;
 }
 
 class MainWindow : public QMainWindow
@@ -42,11 +41,9 @@ public:
 private:
 	void ReadSettings();
 	void WriteSettings();
+	void InitChart();
 
 	Ui::MainWindow *ui;
-
-    QList<int> data;
-    int graph_count = 0;
 
     QComboBox *synchro_box;
     QComboBox *polarity_box;
@@ -65,7 +62,6 @@ private:
 	QChart* i_chart;
 	QValueAxis* i_axisX;
 	QValueAxis* i_axisY;
-
 	QLineSeries* v_series;
 	QChart* v_chart;
 	QValueAxis* v_axisX;
@@ -74,7 +70,6 @@ private:
 	ImageChannelPtr mpImageChannel;
 
 signals:
-	void UpdateProcessParam(ImageProcessParameters);
 
 private slots:
     void openEditor(QTreeWidgetItem *item, int column);
@@ -95,7 +90,7 @@ private slots:
 
 	void ReceiveAnalogData(QVector<double>);
 
-	void Slotfinish();
+	void ReceiveFinishSignal();
 
 	void receiveWidth(double);
 	void receiveLength(double);
@@ -111,7 +106,6 @@ public:
 	explicit SaveSetDialog(QWidget *parent = 0);
 	~SaveSetDialog();
 	
-
 signals:
 	void sendSaveSet(QString, size_t);
 

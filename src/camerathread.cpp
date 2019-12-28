@@ -220,7 +220,7 @@ void CameraThread::SetCameraParameter(const CameraParameters& cameraParams)
 	HWND send2 = FindWindowEx(fatherwnd, send1, _T("Button"), _T("Send"));
 
 	//FrameFormat
-	SetFrameFormat(std::atoi(mCameraParams.imageWidth.c_str()), std::atoi(mCameraParams.imageHeight.c_str()), child, send2);
+	//SetFrameFormat(std::atoi(mCameraParams.imageWidth.c_str()), std::atoi(mCameraParams.imageHeight.c_str()), child, send2);
 	//Exposure
 	SetExposure(std::atoi(mCameraParams.exposureTime.c_str()), child, send2);
 	//FrameRate
@@ -255,5 +255,4 @@ void CameraThread::SetCameraParameter(const CameraParameters& cameraParams)
 
 	mSerialTerminalWnd.Close();
 	delete lDeviceAdapter;
-	std::cout << "inner function exit" << std::endl;
 }

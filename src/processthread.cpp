@@ -26,7 +26,6 @@ ProcessThread::ProcessThread(ImageChannelPtr imagechannel):
     mIsRecording = false;
 	mIsProcessing = false;
 
-
 	mSaveFreq = 1;
 }
 
@@ -107,6 +106,7 @@ void ProcessThread::DisplayImage()
 
 void ProcessThread::SaveImage()
 {
+	mSaveNum = 1;
 	while (mIsRecording)
 	{
 		QImage qImg;
@@ -130,7 +130,9 @@ int ProcessThread::IPThreshold(QImage& origin)
 {
 	cv::Mat src = cv::Mat(origin.height(), origin.width(), CV_8UC1, (void*)origin.bits(), origin.bytesPerLine()).clone();
 	if (!src.data) return -1;
-	cv::Mat src_roi = src(cv::Rect(mIPParameters.roi_x, mIPParameters.roi_y, mIPParameters.roi_w, mIPParameters.roi_h));
+	size_t real_x = min(mIPParameters.roi_x, max(0, origin.width() - mIPParameters.roi_w));
+	size_t real_y = min(mIPParameters.roi_y, max(0, origin.height() - mIPParameters.roi_h));
+	cv::Mat src_roi = src(cv::Rect(real_x, real_y, mIPParameters.roi_w, mIPParameters.roi_h));
 
 	cv::Mat Thre;
 	cv::threshold(src_roi, Thre, mIPParameters.ip_threshold, 255, CV_THRESH_BINARY);

@@ -75,13 +75,10 @@ int ControlThread::Initialize()
     cacheOverflowHandler.owner = this;
     stoppedHander.owner = this;
 
-    //QString deviceName = { "USB-4711A,BID#0" };
-	mDeviceName = { "DemoDevice,BID#0" };
+    mDeviceName = { "USB-4711A,BID#0" };
+	//mDeviceName = { "DemoDevice,BID#0" };
     std::wstring wDeviceName = mDeviceName.toStdWString();
     DeviceInformation deviceInfo(wDeviceName.c_str());
-
-    //#define deviceDescription L"DemoDevice,BID#0"
-    //DeviceInformation selected(deviceDescription);
 
     mpBufferedAiCtrl = AdxBufferedAiCtrlCreate();
 
@@ -141,6 +138,7 @@ bool ControlThread::IsCollecting()
 
 void ControlThread::StartSaving()
 {
+	mIsSaving = true;
 	mFile.setFileName(QString::fromStdString(mSavePath));
 	mTextStream.setDevice(&mFile);
 	mTextStream << "Current,Voltage\n";

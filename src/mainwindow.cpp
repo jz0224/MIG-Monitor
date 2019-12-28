@@ -10,6 +10,8 @@ Q_DECLARE_METATYPE(QVector<double>);
 
 #define REPOSITORY_SIZE (100)
 
+const double ratio = 10.0;
+
 const QString settingFilePath = "./settings.ini";
 
 SaveSetDialog::SaveSetDialog(QWidget *parent) :
@@ -105,8 +107,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	i_chart->legend()->hide();
 	i_chart->setMargins(QMargins(0, 0, 0, 0));
 	i_chart->setTheme(QChart::ChartThemeDark);
-	ui->graphicsView->setChart(i_chart);
-	ui->graphicsView->setRenderHint(QPainter::Antialiasing);
 
 	v_series = new QLineSeries;
 	v_series->setUseOpenGL(true);
@@ -133,6 +133,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	v_chart->legend()->hide();
 	v_chart->setMargins(QMargins(0, 0, 0, 0));
 	v_chart->setTheme(QChart::ChartThemeDark);
+
+	ui->graphicsView->setChart(i_chart);
+	ui->graphicsView->setRenderHint(QPainter::Antialiasing);
+
 	ui->graphicsView_3->setChart(v_chart);
 	ui->graphicsView_3->setRenderHint(QPainter::Antialiasing);
 
@@ -181,7 +185,6 @@ void MainWindow::on_actionConnect_triggered()
 {
 	mpCameraThread = new CameraThread(mpImageChannel);
 
-
 	if (mpCameraThread->ConnectToDevice() < 0) {
 		QMessageBox::warning(this, tr("Warning"), tr("Camera is not connected!"), QMessageBox::Ok);
 		return;
@@ -204,6 +207,8 @@ void MainWindow::on_actionDisconnect_triggered()
 	ui->actionSetSavePath->setEnabled(false);
 	ui->actionRecord->setEnabled(false);
 	ui->actionUploadParameters->setEnabled(false);
+	ui->display_wnd->setEnabled(false);
+	ui->roi_wnd->setEnabled(false);
 }
 
 void MainWindow::on_actionSetSavePath_triggered()
@@ -250,12 +255,13 @@ void MainWindow::on_actionUploadParameters_triggered()
 	connect(mpProcessThread, SIGNAL(sendImg(QImage)), this, SLOT(updateFrame(QImage)));
 	mpProcessThread->StartDisplay();
 
+	ui->display_wnd->setEnabled(true);
 	ui->actionSetSavePath->setEnabled(true);
 	ui->actionStart->setEnabled(true);
 }
 
 void MainWindow::on_actionStart_triggered()
-{    
+{
 	//connect(mpProcessThread, SIGNAL(connectLost()), this, SLOT(ConnectLostHandler()));
 
 	//判断相机是否在采像
@@ -267,8 +273,12 @@ void MainWindow::on_actionStart_triggered()
 
 	//控制线程开始
 	if (mpControlThread != nullptr && !mpControlThread->IsCollecting())
+	{
+		i_series->clear();
+		v_series->clear();
 		mpControlThread->StartCollect();
-
+	}
+		
 	ui->actionStart->setEnabled(false);
 	ui->actionStop->setEnabled(true);
 	ui->actionSetSavePath->setEnabled(true);
@@ -278,7 +288,7 @@ void MainWindow::on_actionStart_triggered()
 
 void MainWindow::on_actionStop_triggered()
 {
-    on_actionRecord_toggled(false);
+    //on_actionRecord_toggled(false);
 	
 	mpProcessThread->StopAllTasks();
 	mpCameraThread->StopCapture();
@@ -321,19 +331,18 @@ void MainWindow::on_actionRecord_toggled(bool pressed)
 
 		if (mpControlThread != nullptr && mpControlThread->IsCollecting())
 		{
-			i_series->clear();
-			v_series->clear();
 			mpControlThread->SetSavePath(savePath + ".csv");
 			
 			mpControlThread->StartSaving();
-		}		
+		}
     }
 	else
 	{
 		mpProcessThread->StopRecord();
 		if (mpControlThread != nullptr && mpControlThread->IsCollecting())
 		{
-			mpControlThread->StopCollect();
+			//mpControlThread->StopCollect();
+			mpControlThread->StopSaving();
 		}
 	}
 	ui->actionRecord->setChecked(pressed);
@@ -366,6 +375,7 @@ void MainWindow::on_processButton_toggled(bool pressed)
 		disconnect(mpProcessThread, SIGNAL(sendLength(double)), this, SLOT(receiveLength(double)));
 		disconnect(mpProcessThread, SIGNAL(sendROI(QImage)), this, SLOT(displayROI(QImage)));
 	}
+	ui->roi_wnd->setEnabled(true);
 	ui->processButton->setChecked(pressed);
 }
 
@@ -383,10 +393,10 @@ void MainWindow::on_actionBoard_triggered()
 		QMessageBox::information(this, tr("Information"), mpControlThread->GetDeviceName()+tr(" is connected!"), QMessageBox::Ok);
 	}
 	connect(mpControlThread, SIGNAL(SendAnalogData(QVector<double>)), this, SLOT(ReceiveAnalogData(QVector<double>)));
-	connect(mpControlThread, SIGNAL(SendFinishSignal()), this, SLOT(Slotfinish()));
+	connect(mpControlThread, SIGNAL(SendFinishSignal()), this, SLOT(ReceiveFinishSignal()));
 }
 
-void MainWindow::Slotfinish()
+void MainWindow::ReceiveFinishSignal()
 {
 	QMessageBox::information(this, tr("Notice"), tr("Capture Finished!"), QMessageBox::Ok);
 }
@@ -395,48 +405,46 @@ void MainWindow::ReceiveAnalogData(QVector<double> analogData)
 {
 	int iCurrent = static_cast<int>(analogData[0] * 219);
 	int iVoltage = static_cast<int>(analogData[1] * 21);
-	double time = analogData[2];
+	double t = analogData[2];
 	ui->AI_Current->display(iCurrent);
 	ui->AI_Voltage->display(iVoltage);
-	i_series->append(time, iCurrent);
-	v_series->append(time, iVoltage);
+	i_series->append(t, iCurrent);
+	v_series->append(t, iVoltage);
 }
 
-void MainWindow::receiveWidth(double tempWidth)
+void MainWindow::receiveWidth(double width)
 {
-	double width = tempWidth;
-	ui->widthBar->setValue(width);
-	ui->widthBar->setFormat(QString::fromLocal8Bit("Width：%1mm").arg(QString::number(width, 'f', 2)));
+	ui->widthBar->setValue(width/ratio);
+	ui->widthBar->setFormat(QString::fromLocal8Bit("Width：%1mm").arg(QString::number(width / ratio, 'f', 2)));
 	//电压建议
-	if (tempWidth > 100 && tempWidth < 170)
+	if (width > 100 && width < 170)
 		ui->VoltageBar->setValue(19.5);
-	else if (tempWidth < 180)
+	else if (width < 180)
 		ui->VoltageBar->setValue(18.5);
-	else if (tempWidth < 185)
+	else if (width < 185)
 		ui->VoltageBar->setValue(18);
-	else if (tempWidth < 190)
+	else if (width < 190)
 		ui->VoltageBar->setValue(17.5);
-	else if (tempWidth < 200)
+	else if (width < 200)
 		ui->VoltageBar->setValue(17);
 }
 
-void MainWindow::receiveLength(double tempLength)
+void MainWindow::receiveLength(double length)
 {
-	double length = tempLength;
-	ui->lengthBar->setValue(length);
-	ui->lengthBar->setFormat(QString::fromLocal8Bit("Length：%1mm").arg(QString::number(length, 'f', 2)));
+	ui->lengthBar->setValue(length/ratio);
+	ui->lengthBar->setFormat(QString::fromLocal8Bit("Length：%1mm").arg(QString::number(length / ratio, 'f', 2)));
 	//电流建议
-	if (tempLength > 100 && tempLength < 240)
+	if (length > 100 && length < 240)
 		ui->CurrentBar->setValue(190);
-	else if (tempLength < 250)
+	else if (length < 250)
 		ui->CurrentBar->setValue(185);
-	else if (tempLength < 255)
+	else if (length < 255)
 		ui->CurrentBar->setValue(180);
-	else if (tempLength < 280)
+	else if (length < 280)
 		ui->CurrentBar->setValue(175);
-	else if (tempLength < 290)
+	else if (length < 290)
 		ui->CurrentBar->setValue(170);
-	else if (tempLength < 300)
+	else if (length < 300)
 		ui->CurrentBar->setValue(165);
 }
 
